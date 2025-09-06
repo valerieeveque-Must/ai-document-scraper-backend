@@ -4,8 +4,8 @@ import * as cheerio from 'cheerio';
 // Configuration Axios avec headers réalistes
 const createAxiosInstance = () => {
   return axios.create({
-    timeout: 30000,
-    maxRedirects: 5,
+    timeout: 25000, // Réduit pour Vercel
+    maxRedirects: 3,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -221,11 +221,12 @@ function getConfidenceLevel(score) {
 
 // API Handler pour Vercel
 export default async function handler(req, res) {
-  // CORS headers
+  // CORS headers COMPLETS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
   res.setHeader('Access-Control-Allow-Credentials', 'false');
+  res.setHeader('Access-Control-Max-Age', '86400');
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -250,9 +251,9 @@ export default async function handler(req, res) {
   try {
     const axiosInstance = createAxiosInstance();
     
-    // Récupérer la page HTML avec retry logic amélioré
+    // Récupérer la page HTML avec retry logic
     let response;
-    let retries = 2; // Réduire pour éviter les timeouts Vercel
+    let retries = 2; // Réduit pour Vercel
     
     while (retries > 0) {
       try {
@@ -320,12 +321,13 @@ export default async function handler(req, res) {
     // Trier par score de confiance
     matchedDocuments.sort((a, b) => b.matchScore - a.matchScore);
     
-    res.json({
+    res.status(200).json({
       success: true,
       url: url,
       totalPdfLinks: pdfLinks.length,
       matchedDocuments: matchedDocuments,
-      scrapedAt: new Date().toISOString()
+      scrapedAt: new Date().toISOString(),
+      backendVersion: '1.0.3'
     });
     
   } catch (error) {
