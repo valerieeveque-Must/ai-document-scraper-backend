@@ -298,4 +298,42 @@ export default async function handler(req, res) {
     
     console.log(`🔍 ${pdfLinks.length} liens PDF trouvés`);
     
+    // Matcher les documents selon les types demandés
+    const matchedDocuments = [];
     
+    for (const docType of documentTypes) {
+      const bestMatch = findBestMatch(pdfLinks, docType);
+      if (bestMatch) {
+        matchedDocuments.push({
+          documentType: docType,
+          ...bestMatch,
+          matchScore: bestMatch.score,
+          confidence: getConfidenceLevel(bestMatch.score)
+        });
+        console.log(`✅ Match trouvé pour ${docType}: ${bestMatch.fileName} (score: ${bestMatch.score})`);
+      } else {
+        console.log(`❌ Aucun match pour ${docType}`);
+      }
+    }
+    
+    // Trier par score de confiance
+    matchedDocuments.sort((a, b) => b.matchScore - a.matchScore);
+    
+    res.json({
+      success: true,
+      url: url,
+      totalPdfLinks: pdfLinks.length,
+      matchedDocuments: matchedDocuments,
+      scrapedAt: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error(`❌ Erreur scraping ${url}:`, error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      url: url,
+      errorType: error.code || 'UNKNOWN_ERROR'
+    });
+  }
+}
