@@ -3,7 +3,7 @@ import axios from 'axios';
 // Configuration Axios pour téléchargement PDF
 const createAxiosInstance = () => {
   return axios.create({
-    timeout: 60000,
+    timeout: 40000,
     maxRedirects: 5,
     maxContentLength: 50 * 1024 * 1024, // 50MB
     headers: {
@@ -45,11 +45,12 @@ function formatFileSize(bytes) {
 
 // API Handler pour Vercel
 export default async function handler(req, res) {
-  // CORS headers
+  // CORS headers COMPLETS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
   res.setHeader('Access-Control-Allow-Credentials', 'false');
+  res.setHeader('Access-Control-Max-Age', '86400');
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -90,7 +91,7 @@ export default async function handler(req, res) {
     // Télécharger le PDF
     const response = await axiosInstance.get(pdfUrl, {
       responseType: 'arraybuffer',
-      timeout: 45000, // Timeout réduit pour Vercel
+      timeout: 35000, // Timeout pour Vercel
       headers: {
         'Accept': 'application/pdf,*/*',
         'Referer': new URL(pdfUrl).origin
@@ -128,7 +129,7 @@ export default async function handler(req, res) {
     console.log(`   🔐 Hash: ${contentHash.substring(0, 16)}...`);
     
     // Retourner les métadonnées et le contenu
-    res.json({
+    res.status(200).json({
       success: true,
       fileName: actualFileName,
       fileSize: pdfBuffer.length,
@@ -138,7 +139,8 @@ export default async function handler(req, res) {
       lastModified: response.headers['last-modified'] || new Date().toISOString(),
       serverDate: response.headers['date'],
       pdfData: pdfBuffer.toString('base64'),
-      downloadedAt: new Date().toISOString()
+      downloadedAt: new Date().toISOString(),
+      backendVersion: '1.0.3'
     });
     
   } catch (error) {
