@@ -47,8 +47,9 @@ function formatFileSize(bytes) {
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'false');
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -72,10 +73,10 @@ export default async function handler(req, res) {
   try {
     const axiosInstance = createAxiosInstance();
     
-    // Vérifier d'abord la taille du fichier avec HEAD request
+    // Vérifier la taille avec timeout réduit
     let contentLength = 0;
     try {
-      const headResponse = await axiosInstance.head(pdfUrl);
+      const headResponse = await axiosInstance.head(pdfUrl, { timeout: 10000 });
       contentLength = parseInt(headResponse.headers['content-length'] || '0');
       console.log(`📏 Taille annoncée: ${formatFileSize(contentLength)}`);
       
@@ -89,6 +90,7 @@ export default async function handler(req, res) {
     // Télécharger le PDF
     const response = await axiosInstance.get(pdfUrl, {
       responseType: 'arraybuffer',
+      timeout: 45000, // Timeout réduit pour Vercel
       headers: {
         'Accept': 'application/pdf,*/*',
         'Referer': new URL(pdfUrl).origin
