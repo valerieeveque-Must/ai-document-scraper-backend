@@ -2,13 +2,13 @@
   "version": 2,
   "functions": {
     "api/scrape.js": {
-      "maxDuration": 30
+      "maxDuration": 20
     },
     "api/download-pdf.js": {
-      "maxDuration": 60
+      "maxDuration": 40
     },
     "api/health.js": {
-      "maxDuration": 10
+      "maxDuration": 5
     }
   },
   "headers": [
@@ -25,7 +25,23 @@
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization, Accept, Origin, X-Requested-With"
+          "value": "Content-Type, Authorization, Accept, Origin, X-Requested-With, X-HTTP-Method-Override, Cache-Control, Pragma"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "false"
+        },
+        {
+          "key": "Access-Control-Max-Age",
+          "value": "86400"
+        },
+        {
+          "key": "Vary",
+          "value": "Origin"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         }
       ]
     }
@@ -35,8 +51,5 @@
       "source": "/",
       "destination": "/api/health"
     }
-  ],
-  "buildCommand": "",
-  "outputDirectory": "",
-  "installCommand": "npm install"
+  ]
 }
