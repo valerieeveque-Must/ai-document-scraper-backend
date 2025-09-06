@@ -223,8 +223,9 @@ function getConfidenceLevel(score) {
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'false');
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -249,9 +250,9 @@ export default async function handler(req, res) {
   try {
     const axiosInstance = createAxiosInstance();
     
-    // Récupérer la page HTML avec retry logic
+    // Récupérer la page HTML avec retry logic amélioré
     let response;
-    let retries = 3;
+    let retries = 2; // Réduire pour éviter les timeouts Vercel
     
     while (retries > 0) {
       try {
@@ -260,8 +261,8 @@ export default async function handler(req, res) {
       } catch (error) {
         retries--;
         if (retries === 0) throw error;
-        console.log(`⚠️ Retry ${3 - retries}/3 pour ${url}`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(`⚠️ Retry ${2 - retries}/2 pour ${url}`);
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
     
