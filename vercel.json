@@ -35,5 +35,8 @@
       "source": "/",
       "destination": "/api/health"
     }
-  ]
+  ],
+  "buildCommand": "",
+  "outputDirectory": "",
+  "installCommand": "npm install"
 }
