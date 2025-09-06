@@ -1,6 +1,6 @@
 {
   "name": "ai-document-scraper-backend",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Backend de scraping pour l'Agent de Surveillance Documentaire IA",
   "main": "api/health.js",
   "scripts": {
